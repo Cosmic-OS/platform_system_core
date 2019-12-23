@@ -85,9 +85,11 @@
 #define MEMINFO_PATH "/proc/meminfo"
 #define PROC_STATUS_TGID_FIELD "Tgid:"
 #define VMSTAT_PATH "/proc/vmstat"
-#define TRACE_MARKER_PATH "/sys/kernel/debug/tracing/trace_marker"
 #define LINE_MAX 128
 #define MAX_NR_ZONES 6
+
+// #define ENABLE_KTRACE_LOGS
+#define TRACE_MARKER_PATH "/sys/kernel/debug/tracing/trace_marker"
 
 /* Android Logger event logtags (see event.logtags) */
 #define MEMINFO_LOG_TAG 10195355
@@ -1477,6 +1479,7 @@ static int parse_one_zone_watermark(char *buf, struct watermark_info *w)
     return ret;
 }
 
+#ifdef ENABLE_KTRACE_LOGS
 static void trace_log(char *fmt, ...)
 {
     char buf[PAGE_SIZE];
@@ -1513,6 +1516,9 @@ static void trace_log(char *fmt, ...)
 		ALOG##X(fmt);  \
 		trace_log(fmt); \
 		})
+#else
+#define ULMK_LOG(X, fmt...) ALOG##X(fmt)
+#endif
 static int file_cache_to_adj(enum vmpressure_level lvl, int nr_free,
 			     int nr_file)
 {
